@@ -1,0 +1,60 @@
+import { useState, useEffect, useRef } from "react";
+import bootstrapIcons from 'bootstrap-icons/bootstrap-icons.svg'
+import PropTypes from 'prop-types'
+import classNames from 'classnames'
+import './TabList.scss'
+
+const TabList = ({ files, activeId, unsaveIds, onTabClick, onCloseTab }) => {
+
+    return (
+        <ul className="nav nav-pills tablist-component">
+            {
+                files.map(file => {
+
+                    const withUnsaved = unsaveIds.includes(file.id)
+
+                    const finalClassName = classNames({
+                        'nav-link': true,
+                        'active': file.id === activeId
+                    })
+
+                    const finelIconClassName = classNames({
+                        'close-icon': true,
+                        'bi bi-x-lg': true,
+                        'bi bi-circle-fill': withUnsaved
+                        // 'withUnsaved': withUnsaved
+                    })
+
+                    const unsavedClassName = classNames({
+                        'unsaved-icon': true,
+                        'rounded-circle ml-0': true,
+                        'withUnsaved': withUnsaved
+                    })
+
+                    return (
+                        <li className="nav-item" key={file.id}>
+                            <a href="#" 
+                            className={finalClassName}
+                            onClick={(e) => { e.preventDefault(); onTabClick(file.id); }}
+                            >
+                                <span >{file.title}</span>
+                                <i onClick={(e) => { e.stopPropagation(); onCloseTab(file.id); }} src={bootstrapIcons} className={finelIconClassName} />
+                                { withUnsaved && <span className={unsavedClassName}></span>}
+                            </a>
+                        </li>
+                    )
+                })
+            }
+        </ul>
+    )
+}
+
+TabList.propTypes = {
+
+}
+
+TabList.defaultTypes = {
+    unsaveIds: []
+}
+
+export default TabList
