@@ -14,17 +14,17 @@ import { v4 as uuidv4 } from 'uuid'
 import { flattenArr, objToArr } from './utils/helper'
 import fileHelper from './utils/fileHelper'
 
-const { join } = window.require('path')
+const { join, basename, extname, dirname } = window.require('path')
 const { remote } = window.require('electron')
+// require('@electron/remote/main').initialize()
+// const { app, dialog } = require('@electron/remote')
 const Store = window.require('electron-store')
 
 const fileStore = new Store({'name': 'Files Data'})
 
 //  持久化
 const saveFilesToStore = (files) => {
-    const a = objToArr(files)
-    console.log('AAAA', a)
-    const filesStoreObj = a.reduce((result, file) => {
+    const filesStoreObj = objToArr(files).reduce((result, file) => {
         const { id, path, title, createAt } = file
         result[id] = {
             id, path, title, createAt
@@ -48,6 +48,10 @@ function App() {
         return files[openId]
     })
     const savedLocation = remote.app.getPath('documents')
+    // const savedLocation = app.getPath('documents')
+
+
+
 
     const createNewFile = () => {
         const newId = uuidv4()
@@ -91,7 +95,8 @@ function App() {
     }
 
     const updateFileName = (fileId, fileTitle, isNew) => {
-        const newPath = join(savedLocation, `${fileTitle}.md`)
+
+        const newPath = isNew? join(savedLocation, `${fileTitle}.md`) : join(dirname(files[fileId].path), `${fileTitle}.md`)
 
         const modifiedFile = { ...files[fileId], title: fileTitle, isNew: false, path: newPath }
         const newFiles = { ...files, [fileId]: modifiedFile}
@@ -101,7 +106,7 @@ function App() {
                 saveFilesToStore(newFiles)
             })
         } else {
-            const oldPath = join(savedLocation, `${files[fileId].title}.md`)
+            const oldPath = files[fileId].path
             fileHelper.readnameFile( oldPath, newPath ).then(() => {
                 setFiles(newFiles)
                 saveFilesToStore(newFiles)
@@ -139,8 +144,58 @@ function App() {
     }
 
     const saveCurrentFile = () => {
-        fileHelper.writeFile(join(savedLocation, `${activeFile.title}.md`), activeFile.body).then(() => {
+        fileHelper.writeFile(activeFile.path, activeFile.body).then(() => {
             setUnsavedFileIds(unsavedFildIds.filter(id => id != activeFile.id))
+        })
+    }
+
+    const importFiles = () => {
+        console.log('importFiles')
+        remote.dialog.showOpenDialog({
+        // dialog.showOpenDialog({
+            title: '选择导入的 Markdown 文件',
+            properties: ['openFile', 'multiSelections'],
+            filters: [ { name: 'Markdown Files', extensions: ['md'] } ]
+        }).then(result => {
+            console.log('result', result)
+
+            if(result.canceled)
+                return
+
+            const paths = result.filePaths
+            if(Array.isArray(paths)) {
+                const filteredPaths = paths.filter(path => {
+                    const alreadyAdded = Object.values(files).find(file => {
+                        return file.path === path
+                    })
+                    return !alreadyAdded
+                })
+
+                const importFilesArr = filteredPaths.map(path => {
+                    return {
+                        id: uuidv4(),
+                        title: basename(path, extname(path)),
+                        path,
+                    }
+                })
+
+                console.log('importFilesArr', importFilesArr)
+
+                const newFiles = { ...files, ...flattenArr(importFilesArr)}
+                console.log('new Files:', newFiles)
+
+                setFiles(newFiles)
+                saveFilesToStore(newFiles)
+
+                if(importFilesArr.length > 0) {
+                    remote.dialog.showMessageBox({
+                        type: 'info',
+                        title: '导入成功',
+                        message: `成功导入了${importFilesArr.length}个文件`
+
+                    })
+                }
+            }
         })
     }
 
@@ -168,6 +223,7 @@ function App() {
                             text="导入"
                             colorClass="col btn-success"
                             icon="bi bi-box-arrow-in-right"
+                            onBtnClick={importFiles}
                             />
                     </div>
                 </div>
