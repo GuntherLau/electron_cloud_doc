@@ -84,23 +84,8 @@ const FileList = ({ files, onFileClick, onFileEdit, onFileDelete }) => {
                     >
                         {   (file.id != editStatus && !file.isNew) &&
                         <>
-                            <button className="col-2 btn btn-outline-primary">
-                                <i src={bootstrapIcons} className="bi bi-markdown-fill" style={{"font-size": "20px"}} />
-                            </button>
-
+                            <i src={bootstrapIcons} className="bi bi-markdown-fill" style={{"font-size": "20px", "width":"30px"}} />
                             <span className="col-6" onClick={() => { onFileClick(file.id) }}>{ file.title }</span>
-
-                            <button className="col-2 btn btn-outline-primary"
-                                onClick={() => { setEditStatus(file.id); setValue(file.title); }}
-                            >
-                                <i src={bootstrapIcons} className="bi bi-file-text-fill" style={{"font-size": "20px"}} />
-                            </button>
-                            
-                            <button className="col-2 btn btn-outline-primary"
-                                onClick={() => { onFileDelete(file.id) }}
-                            >
-                                <i src={bootstrapIcons} className="bi bi-archive-fill" style={{"font-size": "20px"}} />
-                            </button>
                         </>
                         }
 
