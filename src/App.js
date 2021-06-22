@@ -19,6 +19,7 @@ const { remote } = window.require('electron')
 const Store = window.require('electron-store')
 
 const fileStore = new Store({'name': 'Files Data'})
+const settingsStore = new Store({'name': 'Settings'})
 
 //  持久化
 const saveFilesToStore = (files) => {
@@ -45,7 +46,7 @@ function App() {
     const openedFiles = openedFileIds.map(openId => {
         return files[openId]
     })
-    const savedLocation = remote.app.getPath('documents')
+    const savedLocation = settingsStore.get('savedFileLocation') || remote.app.getPath('documents')
     // const savedLocation = app.getPath('documents')
 
 
@@ -71,6 +72,12 @@ function App() {
             setFiles(afterDelete)
         } else {
             fileHelper.deleteFile(files[fileId].path).then(() => {
+                const { [fileId]:value, ...afterDelete} = files
+                setFiles(afterDelete)
+                saveFilesToStore(afterDelete)
+                tabClose(fileId)
+            }).catch(() => {
+                //  文件已经在本地被手动删除的情况下
                 const { [fileId]:value, ...afterDelete} = files
                 setFiles(afterDelete)
                 saveFilesToStore(afterDelete)

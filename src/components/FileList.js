@@ -84,7 +84,7 @@ const FileList = ({ files, onFileClick, onFileEdit, onFileDelete }) => {
                     >
                         {   (file.id !== editStatus && !file.isNew) &&
                         <>
-                            <i src={bootstrapIcons} className="bi bi-markdown-fill" style={{"font-size": "20px", "width":"30px"}} />
+                            <i src={bootstrapIcons} className="bi bi-markdown-fill" style={{"fontSize": "20px", "width":"30px"}} />
                             <span className="col-6" onClick={() => { onFileClick(file.id) }}>{ file.title }</span>
                         </>
                         }
