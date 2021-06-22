@@ -5,13 +5,13 @@ const useKeyPress = (targetKeyCode) => {
     const [ keyPressed, setKeyPressed ] = useState(false)
 
     const keyDownHandler = ({ keyCode }) => {
-        if(keyCode == targetKeyCode) {
+        if(keyCode === targetKeyCode) {
             setKeyPressed(true)
         }
     }
 
     const keyUpHandler = ({ keyCode }) => {
-        if(keyCode == targetKeyCode) {
+        if(keyCode === targetKeyCode) {
             setKeyPressed(false)
         }
     }

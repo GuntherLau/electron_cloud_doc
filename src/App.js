@@ -8,16 +8,14 @@ import BottomBtn from './components/BottomBtn'
 import TabList from './components/TabList'
 import SimpleMDE from 'react-simplemde-editor'
 import 'easymde/dist/easymde.min.css'
-import defaultFiles from './utils/defaultFiles'
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid'
 import { flattenArr, objToArr } from './utils/helper'
 import fileHelper from './utils/fileHelper'
+import useIpcRenderer from './hooks/useIpcRenderer';
 
 const { join, basename, extname, dirname } = window.require('path')
 const { remote } = window.require('electron')
-// require('@electron/remote/main').initialize()
-// const { app, dialog } = require('@electron/remote')
 const Store = window.require('electron-store')
 
 const fileStore = new Store({'name': 'Files Data'})
@@ -87,11 +85,13 @@ function App() {
     }
 
     const fileChange = (fileId, value) => {
-        if(!unsavedFildIds.includes(fileId)) {
-            setUnsavedFileIds([...unsavedFildIds, fileId])
+        if(value !== files[fileId].body) {
+            if(!unsavedFildIds.includes(fileId)) {
+                setUnsavedFileIds([...unsavedFildIds, fileId])
+            }
+            const newFile = { ...files[fileId], body: value }
+            setFiles({ ...files, [fileId]: newFile})
         }
-        const newFile = { ...files[fileId], body: value }
-        setFiles({ ...files, [fileId]: newFile})
     }
 
     const updateFileName = (fileId, fileTitle, isNew) => {
@@ -137,7 +137,7 @@ function App() {
     }
 
     const tabClose = (fileId) => {
-        const tabWithout = openedFileIds.filter(fileID => fileID != fileId)
+        const tabWithout = openedFileIds.filter(fileID => fileID !== fileId)
         setOpenedFileIds(tabWithout)
         if(tabWithout.length > 0)
             setActiveFileId(tabWithout[0])
@@ -147,7 +147,7 @@ function App() {
 
     const saveCurrentFile = () => {
         fileHelper.writeFile(activeFile.path, activeFile.body).then(() => {
-            setUnsavedFileIds(unsavedFildIds.filter(id => id != activeFile.id))
+            setUnsavedFileIds(unsavedFildIds.filter(id => id !== activeFile.id))
         })
     }
 
@@ -200,6 +200,12 @@ function App() {
             }
         })
     }
+
+    useIpcRenderer({
+        'create-new-file': createNewFile,
+        'save-edit-file': saveCurrentFile,
+        'import-file': importFiles
+    })
 
     return (
         <div className="App container-fluid ">

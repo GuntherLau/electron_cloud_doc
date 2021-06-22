@@ -1,6 +1,4 @@
-import { useState, useEffect, useRef } from "react";
 import bootstrapIcons from 'bootstrap-icons/bootstrap-icons.svg'
-import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import './TabList.scss'
 

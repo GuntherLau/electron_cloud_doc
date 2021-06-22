@@ -1,6 +1,4 @@
-import { useState, useEffect, useRef } from "react";
 import bootstrapIcons from 'bootstrap-icons/bootstrap-icons.svg'
-import PropTypes from 'prop-types'
 
 const BottomBtn = ({ text, colorClass, icon, onBtnClick }) => (
     <button

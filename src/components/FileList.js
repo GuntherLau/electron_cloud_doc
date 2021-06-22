@@ -22,8 +22,8 @@ const FileList = ({ files, onFileClick, onFileEdit, onFileDelete }) => {
 
     useEffect(() => {
         const editItem = files.find(file => file.id === editStatus)
-        if(enterPressed && editStatus && value.trim()!='') {
-            const editItem = files.find(file => file.id == editStatus)
+        if(enterPressed && editStatus && value.trim()!=='') {
+            const editItem = files.find(file => file.id === editStatus)
             onFileEdit(editItem.id, value, editItem.isNew)
             setEditStatus(false)
             setValue('')
@@ -82,14 +82,14 @@ const FileList = ({ files, onFileClick, onFileEdit, onFileDelete }) => {
                     <li className="list-group-item bg-light row mx-0 d-flex align-items-center file-item"
                         key={file.id} data-id={file.id} data-title={file.title}
                     >
-                        {   (file.id != editStatus && !file.isNew) &&
+                        {   (file.id !== editStatus && !file.isNew) &&
                         <>
                             <i src={bootstrapIcons} className="bi bi-markdown-fill" style={{"font-size": "20px", "width":"30px"}} />
                             <span className="col-6" onClick={() => { onFileClick(file.id) }}>{ file.title }</span>
                         </>
                         }
 
-                        {   ((file.id == editStatus) || (file.isNew)) &&
+                        {   ((file.id === editStatus) || (file.isNew)) &&
                         <>
                             <input 
                                 className="col-10"
