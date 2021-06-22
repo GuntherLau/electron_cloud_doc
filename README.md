@@ -85,3 +85,5 @@ https://github.com/Ionaru/easy-markdown-editor
 https://github.com/RIP21/react-simplemde-editor
 https://www.npmjs.com/package/uuid
 https://www.npmjs.com/package/electron-store
+
+https://github.com/electron/remote

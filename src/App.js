@@ -128,6 +128,8 @@ function App() {
 
         if(!openedFileIds.includes(fileId))
             setOpenedFileIds([...openedFileIds, fileId])
+        
+        console.log('fileClick', currentFile)
     }
 
     const tabClick = (fileId) => {

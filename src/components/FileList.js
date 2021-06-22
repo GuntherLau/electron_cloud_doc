@@ -1,7 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import bootstrapIcons from 'bootstrap-icons/bootstrap-icons.svg'
 import PropTypes from 'prop-types'
 import useKeyPress from '../hooks/usekeyPress'
+import useContextMenu from "../hooks/useContextMenu"
+import { getParentNode } from '../utils/helper'
 
 const FileList = ({ files, onFileClick, onFileEdit, onFileDelete }) => {
 
@@ -39,12 +41,46 @@ const FileList = ({ files, onFileClick, onFileEdit, onFileDelete }) => {
         }
     }, [files])
 
+    const clickedItem = useContextMenu([
+        {
+            label: '打开',
+            click: () => {
+                
+                const parentElement = getParentNode(clickedItem.current, 'file-item')
+                console.log('打开', parentElement.dataset.id)
+                if(parentElement)
+                    onFileClick(parentElement.dataset.id)
+            }
+        },
+        {
+            label: '重命名',
+            click: () => {
+                const parentElement = getParentNode(clickedItem.current, 'file-item')
+                console.log('重命名', parentElement.dataset.id)
+                if(parentElement) {
+                    setEditStatus(parentElement.dataset.id);
+                    setValue(parentElement.dataset.title); 
+                }
+            }
+        },
+        {
+            label: '删除',
+            click: () => {
+                const parentElement = getParentNode(clickedItem.current, 'file-item')
+                console.log('删除', parentElement.dataset.id)
+                if(parentElement) {
+                    onFileDelete(parentElement.dataset.id)
+                }
+            }
+        }
+    ], '.file-list', [files])
+
     return (
         <ul className="list-group list-group-flush file-list">
             {
                 files.map(file => (
                     <li className="list-group-item bg-light row mx-0 d-flex align-items-center file-item"
-                        key={file.id}
+                        key={file.id} data-id={file.id} data-title={file.title}
                     >
                         {   (file.id != editStatus && !file.isNew) &&
                         <>
