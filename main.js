@@ -6,6 +6,7 @@ const AppWindow = require('./AppWindow')
 const path = require('path')
 const Store = require('electron-store')
 const settingsStore = new Store({'name': 'Settings'})
+settingsStore.clear()
 
 let mainWindow, settingsWindow;
 
@@ -24,22 +25,25 @@ app.on('ready', () => {
     ipcMain.on('open-settings-window', () => {
         const settingsWindowConfig = {
             width: 500,
-            height: 400,
-            parent: mainWindow
+            height: 280,
+            parent: mainWindow,
         }
         const settingsFileLocation = `file://${path.join(__dirname, './public/settings.html')}`
         settingsWindow = new AppWindow(settingsWindowConfig, settingsFileLocation)
+        settingsWindow.removeMenu()
         settingsWindow.on('close', () => {
             settingsWindow = null
         })
     })
 
-    ipcMain.on('settings-request-savedFileLocation', (event) => {
-        event.sender.send('settings-request-savedFileLocation-success', settingsStore.get('savedFileLocation'))
+    ipcMain.on('settings-request-update', (event) => {
+        console.log('settingsStore.store', settingsStore.store)
+        event.sender.send('settings-request-update-success', settingsStore.store)
     })
 
-    ipcMain.on('settings-update-savedFileLocation', (event, savedFileLocation) => {
-        settingsStore.set('savedFileLocation', savedFileLocation)
+    ipcMain.on('settings-saveToStore', (event, key, value) => {
+        settingsStore.set(key, value)
+        console.log('settingsStore.store', settingsStore.store)
     })
 
     const menu = Menu.buildFromTemplate(menuTemplate)

@@ -1,18 +1,21 @@
-// import logo from './logo.svg';
-import './App.css';
+// import logo from './logo.svg'
+
+import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'
+import 'easymde/dist/easymde.min.css'
+
+import SimpleMDE from 'react-simplemde-editor'
 import FileSearch from './components/FileSearch'
 import FileList from './components/FileList'
 import BottomBtn from './components/BottomBtn'
 import TabList from './components/TabList'
-import SimpleMDE from 'react-simplemde-editor'
-import 'easymde/dist/easymde.min.css'
-import { useState } from 'react';
+
+import { useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { flattenArr, objToArr } from './utils/helper'
 import fileHelper from './utils/fileHelper'
-import useIpcRenderer from './hooks/useIpcRenderer';
+import useIpcRenderer from './hooks/useIpcRenderer'
 
 const { join, basename, extname, dirname } = window.require('path')
 const { remote } = window.require('electron')
@@ -281,7 +284,7 @@ function App() {
                 </div>
             </div>
         </div>
-    );
+    )
 }
 
-export default App;
+export default App
