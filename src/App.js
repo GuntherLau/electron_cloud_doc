@@ -18,7 +18,7 @@ import fileHelper from './utils/fileHelper'
 import useIpcRenderer from './hooks/useIpcRenderer'
 
 const { join, basename, extname, dirname } = window.require('path')
-const { remote } = window.require('electron')
+const { remote, ipcRenderer } = window.require('electron')
 const Store = window.require('electron-store')
 
 const fileStore = new Store({'name': 'Files Data'})
@@ -35,6 +35,14 @@ const saveFilesToStore = (files) => {
     }, {})
     fileStore.set('files', filesStoreObj)
 }
+
+const getAutoSync = () => [
+    '#settings-Region',
+    '#settings-AccessKeyId',
+    '#settings-AccessKeySecret',
+    '#settings-Bucket',
+    'enableAutoSync'
+].every(key =>  !!settingsStore.get(key) )
 
 function App() {
 
@@ -156,8 +164,14 @@ function App() {
     }
 
     const saveCurrentFile = () => {
+        const { path, body, title } = activeFile
         fileHelper.writeFile(activeFile.path, activeFile.body).then(() => {
             setUnsavedFileIds(unsavedFildIds.filter(id => id !== activeFile.id))
+            if(getAutoSync()) {
+                ipcRenderer.send('upload-file', {
+                    key: `${title}.md`, path
+                })
+            }
         })
     }
 

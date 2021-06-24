@@ -1,11 +1,20 @@
 
-const { app, BrowserWindow, Menu, ipcMain } = require('electron')
+const { app, BrowserWindow, Menu, ipcMain, dialog } = require('electron')
 const isDev = require('electron-is-dev')
 const menuTemplate = require('./src/utils/menuTemplate')
 const AppWindow = require('./AppWindow')
 const path = require('path')
 const Store = require('electron-store')
 const settingsStore = new Store({'name': 'Settings'})
+
+const AliOssManager = require('./src/utils/AliOssManager')
+const createManager = () => {
+    const Region = settingsStore.get('#settings-Region')
+    const AccessKeyId = settingsStore.get('#settings-AccessKeyId')
+    const AccessKeySecret = settingsStore.get('#settings-AccessKeySecret')
+    const Bucket = settingsStore.get('#settings-Bucket')
+    return new AliOssManager(Region, AccessKeyId, AccessKeySecret, Bucket)
+}
 
 let mainWindow, settingsWindow;
 
@@ -66,5 +75,14 @@ app.on('ready', () => {
         }
     })
 
+    ipcMain.on('upload-file', (event, data) => {
+        const manager = createManager()
+        manager.uploadFile(data.key, data.path).then(data => {
+            console.log('上传成功', data)
+        }).catch(e => {
+            console.log(e)
+            dialog.showErrorBox('同步失败','请检查阿里云同步参数是否正确')
+        })
+    })
     
 })
