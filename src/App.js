@@ -13,7 +13,7 @@ import TabList from './components/TabList'
 
 import { useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { flattenArr, objToArr } from './utils/helper'
+import { flattenArr, objToArr, timestampToString } from './utils/helper'
 import fileHelper from './utils/fileHelper'
 import useIpcRenderer from './hooks/useIpcRenderer'
 
@@ -27,9 +27,9 @@ const settingsStore = new Store({'name': 'Settings'})
 //  持久化
 const saveFilesToStore = (files) => {
     const filesStoreObj = objToArr(files).reduce((result, file) => {
-        const { id, path, title, createAt } = file
+        const { id, path, title, createAt, isSynced, updatedAt } = file
         result[id] = {
-            id, path, title, createAt
+            id, path, title, createAt, isSynced, updatedAt
         }
         return result
     }, {})
@@ -225,16 +225,25 @@ function App() {
         })
     }
 
+    const activeFileUploaded = () => {
+        const { id } = activeFile
+        const modifiedFile = { ...files[id], isSynced: true, updatedAt: new Date().getTime() }
+        const newFiles = { ...files, [id]: modifiedFile }
+        setFiles(newFiles)
+        saveFilesToStore(newFiles)
+    }
+
     useIpcRenderer({
         'create-new-file': createNewFile,
         'save-edit-file': saveCurrentFile,
-        'import-file': importFiles
+        'import-file': importFiles,
+        'active-file-uploaded': activeFileUploaded
     })
 
     return (
-        <div className="App container-fluid ">
+        <div className="App container-fluid">
             <div className="row no-gutters">
-                <div className="col-4 bg-light no-gutters left-panel px-0">
+                <div className="col-3 bg-light left-panel">
                     <FileSearch 
                         title="我的文档" 
                         onFileSearch={fileSearch}
@@ -244,7 +253,7 @@ function App() {
                         onFileDelete={deleteFile}
                         onFileEdit={updateFileName}
                     />
-                    <div className="row no-gutters button-group mr-0">
+                    <div className="row no-gutters button-group">
                         <BottomBtn 
                             text="新建"
                             colorClass="col btn-primary"
@@ -259,7 +268,7 @@ function App() {
                             />
                     </div>
                 </div>
-                <div className="col-8 right-panel px-0">
+                <div className="col-9 right-panel">
                     
                     {
                         !activeFile &&
@@ -286,12 +295,10 @@ function App() {
                                 }}
                                 onChange={(e) => { fileChange(activeFileId, e) }}
                             />
-                            <BottomBtn 
-                                text="保存"
-                                colorClass="col btn-success"
-                                icon="bi bi-box-arrow-in-right"
-                                onBtnClick={saveCurrentFile}
-                                />
+                            {
+                                activeFile.isSynced &&
+                                <span className="sync-status">已同步，上次同步{timestampToString(activeFile.updatedAt)}</span>
+                            }
                         </>
                     }
 

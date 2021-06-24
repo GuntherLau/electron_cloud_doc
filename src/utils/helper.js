@@ -46,3 +46,8 @@ export const getParentNode = (node, parentClassName) => {
     }
     return false
 }
+
+export const timestampToString = (timestamp) => {
+    const data = new Date(timestamp)
+    return data.toLocaleDateString() +' '+ data.toLocaleTimeString()
+}
