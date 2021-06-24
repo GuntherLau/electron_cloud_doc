@@ -1,4 +1,14 @@
 const { app, shell, ipcMain } = require('electron')
+const Store = require('electron-store')
+const settingsStore = new Store({'name': 'Settings'})
+let enableAutoSync = settingsStore.get('enableAutoSync')
+
+const aliIsConfig = [
+    '#settings-Region',
+    '#settings-AccessKeyId',
+    '#settings-AccessKeySecret',
+    '#settings-Bucket'
+].every(key =>  !!settingsStore.get(key) )
 
 let template = [
     {
@@ -109,6 +119,41 @@ let template = [
                 click: (item, focusedWindow) => {
                     if(focusedWindow)
                         focusedWindow.toggleDevTools()
+                }
+            }
+        ]
+    },
+    {
+        label: '云同步',
+        submenu: [
+            {
+                label: '设置',
+                accelerator: 'CmdOrCtrl+,',
+                click: () => {
+                    ipcMain.emit('open-settings-window')
+                }
+            },
+            {
+                label: '自动同步',
+                type: 'checkbox',
+                enabled: aliIsConfig,
+                checked: enableAutoSync,
+                click: () => {
+                    settingsStore.set('enableAutoSync', !enableAutoSync)
+                }
+            },
+            {
+                label: '全部同步至云端',
+                enabled: aliIsConfig,
+                click: () => {
+
+                }
+            },
+            {
+                label: '从云端下载到本地',
+                enabled: aliIsConfig,
+                click: () => {
+
                 }
             }
         ]

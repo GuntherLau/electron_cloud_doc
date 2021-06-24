@@ -6,7 +6,6 @@ const AppWindow = require('./AppWindow')
 const path = require('path')
 const Store = require('electron-store')
 const settingsStore = new Store({'name': 'Settings'})
-settingsStore.clear()
 
 let mainWindow, settingsWindow;
 
