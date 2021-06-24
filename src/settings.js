@@ -1,5 +1,7 @@
 
 const { remote, ipcRenderer } = require('electron')
+const Store = require('electron-store')
+const settingsStore = new Store({'name': 'Settings'})
 const aliOssConfigArr = [
     '#settings-Region',
     '#settings-AccessKeyId',
@@ -13,6 +15,13 @@ const $ = (selector) => {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    Object.keys(settingsStore.store).forEach(key => {
+        if($(key)) {
+            $(key).value = settingsStore.store[key]
+        }
+    })
+
     $('#select-new-location').addEventListener('click', () => {
         ipcRenderer.send('settings-select-new-location', 'select-new-location clicked')
         remote.dialog.showOpenDialog({
@@ -26,15 +35,17 @@ document.addEventListener('DOMContentLoaded', () => {
     })
 
     $('#settings-form').addEventListener('submit', (e) => {
+        
 
         aliOssConfigArr.forEach(selector => {
             if($(selector)) {
                 let { id, value } = $(selector)
-                ipcRenderer.send('settings-saveToStore', selector, value)
+                settingsStore.set(selector, value)
             }
         })
 
-        ipcRenderer.send('settings-saveToStore', '#saved-file-location', $('#saved-file-location').value)
+        settingsStore.set('#saved-file-location', $('#saved-file-location').value)
+        ipcRenderer.send('config-is-saved')
         remote.getCurrentWindow().close()
     })
 
@@ -44,8 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
             element.classList.remove('active')
         })
         e.target.classList.add('active')
-
-        
 
         $('.tab-pane').forEach(element => {
             element.style.display = 'none'
@@ -58,14 +67,5 @@ document.addEventListener('DOMContentLoaded', () => {
             remote.getCurrentWindow().setBounds({ height: 280 })
         }
     })
-
-    ipcRenderer.on('settings-request-update-success', (event, settingsStore) => {
-        Object.keys(settingsStore).forEach(key => {
-            if($(key)) {
-                $(key).value = settingsStore[key]
-            }
-        })
-    })
-    ipcRenderer.send('settings-request-update')
     
 })

@@ -21,6 +21,10 @@ app.on('ready', () => {
         mainWindow = null
     })
 
+    let menu = Menu.buildFromTemplate(menuTemplate)
+    Menu.setApplicationMenu(menu)
+    mainWindow.toggleDevTools()
+
     ipcMain.on('open-settings-window', () => {
         const settingsWindowConfig = {
             width: 500,
@@ -40,12 +44,27 @@ app.on('ready', () => {
         event.sender.send('settings-request-update-success', settingsStore.store)
     })
 
-    ipcMain.on('settings-saveToStore', (event, key, value) => {
-        settingsStore.set(key, value)
-        console.log('settingsStore.store', settingsStore.store)
+    ipcMain.on('config-is-saved', (event) => {
+        let aliMenu = process.platform === 'darwin' ? menu.items[4] : menu.items[3]
+
+        const switchItems = (toggle) => {
+            [1,2,3].forEach(number => {
+                aliMenu.submenu.items[number].enabled = toggle
+            })
+        }
+        const aliIsConfig = [
+            '#settings-Region',
+            '#settings-AccessKeyId',
+            '#settings-AccessKeySecret',
+            '#settings-Bucket'
+        ].every(key =>  !!settingsStore.get(key) )
+        
+        if(aliIsConfig) {
+            switchItems(true)
+        } else {
+            switchItems(false)
+        }
     })
 
-    const menu = Menu.buildFromTemplate(menuTemplate)
-    Menu.setApplicationMenu(menu)
-    mainWindow.toggleDevTools()
+    
 })
