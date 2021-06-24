@@ -55,6 +55,10 @@ class AliOssManager {
         return await this.client.get(objectName, localFilePath)
     }
 
+    async isExistObject(objectName, options = {}) {
+        return await this.client.head(objectName, options)
+    }
+
 }
 
 module.exports = AliOssManager

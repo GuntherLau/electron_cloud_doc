@@ -5,6 +5,7 @@ const menuTemplate = require('./src/utils/menuTemplate')
 const AppWindow = require('./AppWindow')
 const path = require('path')
 const Store = require('electron-store')
+const fileStore = new Store({'name': 'Files Data'})
 const settingsStore = new Store({'name': 'Settings'})
 
 const AliOssManager = require('./src/utils/AliOssManager')
@@ -83,6 +84,32 @@ app.on('ready', () => {
         }).catch(e => {
             console.log(e)
             dialog.showErrorBox('同步失败','请检查阿里云同步参数是否正确')
+        })
+    })
+
+    ipcMain.on('download-file', (event, data) => {
+        const manager = createManager()
+        manager.isExistObject(data.key).then((isExistObjectData) => {
+            // console.log('isExistObject', isExistObjectData)
+            // console.log(data.key, data.path)
+            let serverUpdatedTime = new Date(isExistObjectData.res.headers['last-modified']).getTime()
+            let localUpdatedTime = fileStore.get('files')[data.id].updatedAt
+            
+            if(serverUpdatedTime > localUpdatedTime || !localUpdatedTime) {
+                manager.downloadFile(data.key, data.path).then((downloadFileData) => {
+                    mainWindow.webContents.send('file-download', { id: data.id, status: 'download-file-success'})
+                }).catch(e => {
+                    console.log('云端文件下载失败', e)
+                    mainWindow.webContents.send('file-download', { id: data.id, status: 'download file fail'})
+                })
+            } else {
+                mainWindow.webContents.send('file-download', { id: data.id, status: 'no new file'})
+            }
+        }).catch(e => {
+            if(e.status === 404) {
+                console.log('云端文件不存在', e)
+                mainWindow.webContents.send('file-download', { id: data.id, status: 'Object not exists'})
+            }
         })
     })
     

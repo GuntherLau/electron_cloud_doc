@@ -137,11 +137,21 @@ function App() {
         setActiveFileId(fileId)
 
         const currentFile = files[fileId]
+
+
         if(!currentFile.isLoaded) {
-            fileHelper.readFile(currentFile.path).then((value) => {
-                const newFile = { ...files[fileId], body: value, isLoaded: true}
-                setFiles({...files, [fileId]: newFile})
-            })
+            if(getAutoSync()) {
+                ipcRenderer.send('download-file', {
+                    key: `${currentFile.title}.md`,
+                    path: currentFile.path,
+                    id: currentFile.id
+                })
+            } else {
+                fileHelper.readFile(currentFile.path).then((value) => {
+                    const newFile = { ...files[fileId], body: value, isLoaded: true}
+                    setFiles({...files, [fileId]: newFile})
+                })
+            }
         }
 
         if(!openedFileIds.includes(fileId))
@@ -233,11 +243,31 @@ function App() {
         saveFilesToStore(newFiles)
     }
 
+    const activeFileDownloaded = (event, message) => {
+        const currentFile = files[message.id]
+        const { id, path } = currentFile
+        console.log('activeFileDownloaded', message.status)
+        fileHelper.readFile(path).then(value => {
+            let newFile
+
+            if(message.status === 'download-file-success') {
+                newFile = { ...files[id], body: value, isLoaded: true, isSynced: true, updatedAt: new Date().getTime() }
+            } else {
+                newFile = { ...files[id], body: value, isLoaded: true }
+            }
+
+            const newFiles = { ...files, [id]: newFile }
+            setFiles(newFiles)
+            saveFilesToStore(newFiles)
+        })
+    }
+
     useIpcRenderer({
         'create-new-file': createNewFile,
         'save-edit-file': saveCurrentFile,
         'import-file': importFiles,
-        'active-file-uploaded': activeFileUploaded
+        'active-file-uploaded': activeFileUploaded,
+        'file-download': activeFileDownloaded
     })
 
     return (
