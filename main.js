@@ -140,5 +140,32 @@ app.on('ready', () => {
     ipcMain.on('download-all-to-local', (event) => {
 
     })
+
+    ipcMain.on('update-fileName', (event, data) => {
+        console.log('update-fileName', data)
+        mainWindow.webContents.send('loading-status', true)
+        const manager = createManager()
+        manager.deleteFile(path.basename(data.oldPath)).then(() => {
+            manager.uploadFile(path.basename(data.newPath), data.newPath).then(() => {
+                console.log('重命名完成')
+                mainWindow.webContents.send('loading-status', false)
+            })
+        })
+    })
+
+    ipcMain.on('delete-file', (event, data) => {
+        mainWindow.webContents.send('loading-status', true)
+        const manager = createManager()
+        const objectName = path.basename(data.path)
+        manager.isExistObject(objectName).then((isExistObjectData) => {
+            manager.deleteFile(objectName).then(() => {
+                console.log('删除成功')
+                mainWindow.webContents.send('loading-status', false)
+            })
+        }).catch(() => {
+            console.log('云端文件不存在')
+            mainWindow.webContents.send('loading-status', false)
+        })
+    })
     
 })

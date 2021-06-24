@@ -85,6 +85,10 @@ function App() {
             setFiles(afterDelete)
         } else {
             fileHelper.deleteFile(files[fileId].path).then(() => {
+                ipcRenderer.send('delete-file', {
+                    id: fileId,
+                    path: files[fileId].path
+                })
                 const { [fileId]:value, ...afterDelete} = files
                 setFiles(afterDelete)
                 saveFilesToStore(afterDelete)
@@ -130,6 +134,9 @@ function App() {
             fileHelper.readnameFile( oldPath, newPath ).then(() => {
                 setFiles(newFiles)
                 saveFilesToStore(newFiles)
+                ipcRenderer.send('update-fileName', {
+                    oldPath, newPath
+                })
             })
         }
     }
