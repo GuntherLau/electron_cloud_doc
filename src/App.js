@@ -10,6 +10,7 @@ import FileSearch from './components/FileSearch'
 import FileList from './components/FileList'
 import BottomBtn from './components/BottomBtn'
 import TabList from './components/TabList'
+import Loader from './components/Loader'
 
 import { useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
@@ -51,6 +52,7 @@ function App() {
     const [ openedFileIds, setOpenedFileIds ] = useState([])
     const [ unsavedFildIds, setUnsavedFileIds ] = useState([])
     const [ searchedFiles, setSearchedFiles ] = useState([])
+    const [ isLoading, setLoading ] = useState(false)
     const filesArr = objToArr(files)
     const fileListArr = (searchedFiles.length > 0) ? searchedFiles : filesArr
     const activeFile = files[activeFileId]
@@ -262,16 +264,37 @@ function App() {
         })
     }
 
+    const filesUploaded = () => {
+        const newFiles = objToArr(files).reduce((result, file) => {
+            const currentTime = new Date().getTime()
+            result[file.id] = {
+                ...files[file.id],
+                isSynced: true,
+                updatedAt: currentTime
+            }
+            return result
+        }, {})
+        setFiles(newFiles)
+        saveFilesToStore(newFiles)
+    }
+
     useIpcRenderer({
         'create-new-file': createNewFile,
         'save-edit-file': saveCurrentFile,
         'import-file': importFiles,
         'active-file-uploaded': activeFileUploaded,
-        'file-download': activeFileDownloaded
+        'file-download': activeFileDownloaded,
+        'loading-status': (event, status) => {
+            setLoading(status)
+        },
+        'file-upload': filesUploaded
     })
 
     return (
         <div className="App container-fluid">
+            {
+                isLoading && <Loader />
+            }
             <div className="row no-gutters">
                 <div className="col-3 bg-light left-panel">
                     <FileSearch 

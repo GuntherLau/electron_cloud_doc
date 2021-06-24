@@ -146,14 +146,14 @@ let template = [
                 label: '全部同步至云端',
                 enabled: aliIsConfig,
                 click: () => {
-
+                    ipcMain.emit('upload-all-to-aliyun')
                 }
             },
             {
                 label: '从云端下载到本地',
                 enabled: aliIsConfig,
                 click: () => {
-
+                    ipcMain.emit('download-all-to-local')
                 }
             }
         ]
