@@ -59,6 +59,31 @@ class AliOssManager {
         return await this.client.head(objectName, options)
     }
 
+    async objects() {
+        var self = this
+        return new Promise(async (resolve, reject) => {
+            let arr = []
+            let marker = null;
+            // 每页列举20个文件。
+            const maxKeys = 20;
+            do {
+                let result = await self.client.list({ marker, 'max-keys': maxKeys });
+                // console.log(result);
+                marker = result.nextMarker;
+                result.objects.forEach(obj => {
+                    arr.push(obj)
+                })
+            } while(marker)
+            resolve(arr)
+        })
+    }
+
+    //  更新文件元信息
+    async putMeta (objectName, data) {
+        return await this.client.putMeta(objectName, data )
+    }
+
 }
+
 
 module.exports = AliOssManager

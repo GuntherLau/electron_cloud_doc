@@ -78,9 +78,20 @@ app.on('ready', () => {
 
     ipcMain.on('upload-file', (event, data) => {
         const manager = createManager()
-        manager.uploadFile(data.key, data.path).then(data => {
-            console.log('上传成功', data)
-            mainWindow.webContents.send('active-file-uploaded')
+        manager.uploadFile(data.key, data.path).then(uploadFileData => {
+            console.log('上传成功', uploadFileData)
+
+            //  更新文件元数据
+            console.log('更新文件元数据', data)
+            manager.putMeta(data.key, {
+                id: data.id,
+                title: data.title,
+                createAt: data.createAt,
+                path: data.path
+            }).then((putMetaData) => {
+                console.log('putMeta成功', putMetaData)
+                mainWindow.webContents.send('active-file-uploaded')
+            })
         }).catch(e => {
             console.log(e)
             dialog.showErrorBox('同步失败','请检查阿里云同步参数是否正确')
@@ -90,25 +101,26 @@ app.on('ready', () => {
     ipcMain.on('download-file', (event, data) => {
         const manager = createManager()
         manager.isExistObject(data.key).then((isExistObjectData) => {
-            // console.log('isExistObject', isExistObjectData)
+            console.log('isExistObject', isExistObjectData)
             // console.log(data.key, data.path)
             let serverUpdatedTime = new Date(isExistObjectData.res.headers['last-modified']).getTime()
             let localUpdatedTime = fileStore.get('files')[data.id].updatedAt
-            
+            mainWindow.webContents.send('test', isExistObjectData)
             if(serverUpdatedTime > localUpdatedTime || !localUpdatedTime) {
                 manager.downloadFile(data.key, data.path).then((downloadFileData) => {
-                    mainWindow.webContents.send('file-download', { id: data.id, status: 'download-file-success'})
+                    console.log('download-file-success', downloadFileData)
+                    mainWindow.webContents.send('file-download', { ...data, status: 'download-file-success'})
                 }).catch(e => {
                     console.log('云端文件下载失败', e)
-                    mainWindow.webContents.send('file-download', { id: data.id, status: 'download file fail'})
+                    mainWindow.webContents.send('file-download', { ...data, status: 'download file fail'})
                 })
             } else {
-                mainWindow.webContents.send('file-download', { id: data.id, status: 'no new file'})
+                mainWindow.webContents.send('file-download', { ...data, status: 'no new file'})
             }
         }).catch(e => {
             if(e.status === 404) {
                 console.log('云端文件不存在', e)
-                mainWindow.webContents.send('file-download', { id: data.id, status: 'Object not exists'})
+                mainWindow.webContents.send('file-download', { ...data, status: 'Object not exists'})
             }
         })
     })
@@ -138,7 +150,41 @@ app.on('ready', () => {
     })
 
     ipcMain.on('download-all-to-local', (event) => {
+        /*
+        mainWindow.webContents.send('loading-status', true)
 
+        let newFiles = fileStore.get('files')
+        console.log('newFiles', newFiles)
+
+        let defaultSavePath = settingsStore.get('#saved-file-location')
+        console.log('savedFileLocation', defaultSavePath)
+
+        const manager = createManager()
+        manager.objects().then((list) => {
+            // console.log('objects', list)
+            let arr = []
+            list.forEach(async obj => {
+                await manager.isExistObject(obj.name).then(async isExistObjectData => {
+                    console.log(obj.name, isExistObjectData.meta)
+                    
+                    
+                    console.log('downloadFile ========== >', isExistObjectData.meta.title)
+                    
+                    
+                    
+                    // let localExist = !!newFile
+                    await manager.downloadFile(obj.name, path.join(defaultSavePath, obj.name)).then()
+                })
+            })
+            mainWindow.webContents.send('file-all-download', arr)
+            mainWindow.webContents.send('loading-status', false)
+            dialog.showMessageBox({
+                type: 'info',
+                title: '下载完成',
+                message: `下载完成，总计下载${list.length}个文件`
+            })
+        })
+        */
     })
 
     ipcMain.on('update-fileName', (event, data) => {

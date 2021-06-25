@@ -59,7 +59,7 @@ function App() {
     const openedFiles = openedFileIds.map(openId => {
         return files[openId]
     })
-    const savedLocation = settingsStore.get('savedFileLocation') || remote.app.getPath('documents')
+    const savedLocation = settingsStore.get('#saved-file-location') || remote.app.getPath('documents')
     // const savedLocation = app.getPath('documents')
 
 
@@ -183,12 +183,13 @@ function App() {
     }
 
     const saveCurrentFile = () => {
-        const { path, body, title } = activeFile
+        // const { id, path, body, title } = activeFile
         fileHelper.writeFile(activeFile.path, activeFile.body).then(() => {
             setUnsavedFileIds(unsavedFildIds.filter(id => id !== activeFile.id))
             if(getAutoSync()) {
-                ipcRenderer.send('upload-file', {
-                    key: `${title}.md`, path
+                ipcRenderer.send('upload-file', { 
+                    ...activeFile,
+                    key: `${activeFile.title}.md`
                 })
             }
         })
@@ -255,7 +256,7 @@ function App() {
     const activeFileDownloaded = (event, message) => {
         const currentFile = files[message.id]
         const { id, path } = currentFile
-        console.log('activeFileDownloaded', message.status)
+        console.log('activeFileDownloaded==========>', message)
         fileHelper.readFile(path).then(value => {
             let newFile
 
