@@ -68,11 +68,13 @@ class AliOssManager {
             const maxKeys = 20;
             do {
                 let result = await self.client.list({ marker, 'max-keys': maxKeys });
-                // console.log(result);
+                console.log(result);
                 marker = result.nextMarker;
-                result.objects.forEach(obj => {
-                    arr.push(obj)
-                })
+                if(result.objects && result.objects.length > 0) {
+                    result.objects.forEach(obj => {
+                        arr.push(obj)
+                    })
+                }
             } while(marker)
             resolve(arr)
         })

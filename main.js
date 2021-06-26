@@ -77,6 +77,7 @@ app.on('ready', () => {
     })
 
     ipcMain.on('upload-file', (event, data) => {
+        console.log('upload-file', data)
         const manager = createManager()
         manager.uploadFile(data.key, data.path).then(uploadFileData => {
             console.log('上传成功', uploadFileData)
@@ -99,13 +100,14 @@ app.on('ready', () => {
     })
 
     ipcMain.on('download-file', (event, data) => {
+        console.log('download-file==========>>>', data)
         const manager = createManager()
         manager.isExistObject(data.key).then((isExistObjectData) => {
             console.log('isExistObject', isExistObjectData)
             // console.log(data.key, data.path)
             let serverUpdatedTime = new Date(isExistObjectData.res.headers['last-modified']).getTime()
             let localUpdatedTime = fileStore.get('files')[data.id].updatedAt
-            mainWindow.webContents.send('test', isExistObjectData)
+
             if(serverUpdatedTime > localUpdatedTime || !localUpdatedTime) {
                 manager.downloadFile(data.key, data.path).then((downloadFileData) => {
                     console.log('download-file-success', downloadFileData)
@@ -150,7 +152,6 @@ app.on('ready', () => {
     })
 
     ipcMain.on('download-all-to-local', (event) => {
-        /*
         mainWindow.webContents.send('loading-status', true)
 
         let newFiles = fileStore.get('files')
@@ -162,29 +163,77 @@ app.on('ready', () => {
         const manager = createManager()
         manager.objects().then((list) => {
             // console.log('objects', list)
+            /*
             let arr = []
             list.forEach(async obj => {
-                await manager.isExistObject(obj.name).then(async isExistObjectData => {
-                    console.log(obj.name, isExistObjectData.meta)
+
+                let objectName = obj.name
+
+                await manager.isExistObject(objectName).then(async isExistObjectData => {
+                    console.log('正在下载', objectName, isExistObjectData.meta)
                     
                     
-                    console.log('downloadFile ========== >', isExistObjectData.meta.title)
+                    // console.log('downloadFile ========== >', isExistObjectData.meta.title)
                     
                     
                     
                     // let localExist = !!newFile
-                    await manager.downloadFile(obj.name, path.join(defaultSavePath, obj.name)).then()
+                    await manager.downloadFile(objectName, path.join(defaultSavePath, objectName))
                 })
             })
-            mainWindow.webContents.send('file-all-download', arr)
+            console.log('下载完成')
+            // mainWindow.webContents.send('file-all-download', arr)
             mainWindow.webContents.send('loading-status', false)
             dialog.showMessageBox({
                 type: 'info',
                 title: '下载完成',
                 message: `下载完成，总计下载${list.length}个文件`
             })
+
+            */
+
+            let newFiles = []
+            const downloadPromiseArr = list.map(async obj => {
+                let objectName = obj.name
+                return new Promise(async (resolve, reject) => {
+                    await manager.isExistObject(objectName).then(async isExistObjectData => {
+                        await manager.downloadFile(objectName, path.join(defaultSavePath, objectName)).then(() => {
+                            console.log(isExistObjectData.meta)
+                            newFiles[isExistObjectData.meta.id] = {
+                                id: isExistObjectData.meta.id,
+                                title: isExistObjectData.meta.title,
+                                createAt: isExistObjectData.meta.createAt,
+                                path: isExistObjectData.meta.path,
+                                isLoaded: false
+                            }
+                            resolve()
+                        })
+                    })
+                })
+            })
+            Promise.all(downloadPromiseArr).then((result) => {
+                console.log('download-all-to-local 下载完成', result)
+                console.log('********************************')
+                console.log('newFiles', newFiles)
+                // result.forEach(obj => {
+                //     console.log(obj.res.headers)
+                // })
+                mainWindow.webContents.send('all-file-download', newFiles)
+                mainWindow.webContents.send('loading-status', false)
+                dialog.showMessageBox({
+                    type: 'info',
+                    title: '下载完成',
+                    message: `下载完成，总计下载${list.length}个文件`
+                })
+            }).catch(e => {
+                dialog.showErrorBox('同步失败','请检查阿里云同步参数是否正确')
+            }).finally(() => {
+                mainWindow.webContents.send('loading-status', false)
+            })
+
+
+            
         })
-        */
     })
 
     ipcMain.on('update-fileName', (event, data) => {

@@ -25,6 +25,8 @@ const Store = window.require('electron-store')
 const fileStore = new Store({'name': 'Files Data'})
 const settingsStore = new Store({'name': 'Settings'})
 
+// fileStore.clear()
+
 //  持久化
 const saveFilesToStore = (files) => {
     const filesStoreObj = objToArr(files).reduce((result, file) => {
@@ -147,7 +149,8 @@ function App() {
 
         const currentFile = files[fileId]
 
-
+        console.log('currentFile', fileId)
+        console.log(files)
         if(!currentFile.isLoaded) {
             if(getAutoSync()) {
                 ipcRenderer.send('download-file', {
@@ -272,6 +275,11 @@ function App() {
         })
     }
 
+    const allFileDownload = (event, newFiles) => {
+        setFiles(newFiles)
+        saveFilesToStore(newFiles)
+    }
+
     const filesUploaded = () => {
         const newFiles = objToArr(files).reduce((result, file) => {
             const currentTime = new Date().getTime()
@@ -292,6 +300,7 @@ function App() {
         'import-file': importFiles,
         'active-file-uploaded': activeFileUploaded,
         'file-download': activeFileDownloaded,
+        'all-file-download': allFileDownload,
         'loading-status': (event, status) => {
             setLoading(status)
         },
