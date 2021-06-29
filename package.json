@@ -15,17 +15,17 @@
       "mirror": "https://npm.taobao.org/mirrors/electron/"
     },
     "extends": null,
+    "extraMetadata": {
+      "main": "./build/main.js"
+    },
     "directories": {
       "buildResources": "assets"
     },
     "files": [
+      "package.json",
       "build/**/*",
       "node_modules/**/*",
-      "settings/**/*",
-      "main.js",
-      "AppWindow.js",
-      "preload.js",
-      "./src/**/*"
+      "settings/**/*"
     ],
     "mac": {
       "category": "public.app-category.productivity",
@@ -54,7 +54,10 @@
       }
     },
     "win": {
-      "target": [ "msi", "nsis"],
+      "target": [
+        "msi",
+        "nsis"
+      ],
       "icon": "assets/icon.ico",
       "artifactName": "${productName}-${version}-${arch}.${ext}",
       "publisherName": "Gunther Lau"
@@ -76,8 +79,9 @@
     "dev": "concurrently \"wait-on http://localhost:3000 && electron .\" \"cross-env BROWSER=none npm start\"",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
-    "prepack": "npm run build",
-    "predist": "npm run build"
+    "prepack": "npm run build && npm run buildMain",
+    "predist": "npm run build && npm run buildMain",
+    "buildMain": "webpack"
   },
   "eslintConfig": {
     "extends": [
@@ -98,30 +102,31 @@
     ]
   },
   "dependencies": {
+    "ali-oss": "^6.15.2",
+    "bootstrap": "^5.0.1",
+    "bootstrap-icons": "^1.5.0",
+    "electron-is-dev": "^2.0.0",
+    "electron-store": "^8.0.0"
+  },
+  "devDependencies": {
     "@electron/remote": "^1.2.0",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
-    "ali-oss": "^6.15.2",
-    "bootstrap": "^5.0.1",
-    "bootstrap-icons": "^1.5.0",
     "classnames": "^2.3.1",
+    "concurrently": "^6.1.0",
+    "cross-env": "^7.0.3",
     "easymde": "^2.15.0",
-    "electron-is-dev": "^2.0.0",
-    "electron-store": "^8.0.0",
+    "electron": "^12.0.9",
+    "electron-builder": "22.10.0",
     "node-sass": "^5.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
     "react-simplemde-editor": "^4.1.0",
     "uuid": "^8.3.2",
-    "web-vitals": "^1.0.1"
-  },
-  "devDependencies": {
-    "concurrently": "^6.1.0",
-    "cross-env": "^7.0.3",
-    "electron": "^12.0.9",
-    "electron-builder": "22.10.0",
-    "wait-on": "^5.3.0"
+    "wait-on": "^5.3.0",
+    "web-vitals": "^1.0.1",
+    "webpack-cli": "^4.7.2"
   }
 }

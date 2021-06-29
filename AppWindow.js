@@ -10,8 +10,7 @@ class AppWindow extends BrowserWindow {
             webPreferences: {
                 nodeIntegration: true,
                 enableRemoteModule: true,
-                contextIsolation: false,
-                preload: __dirname + '/preload.js'
+                contextIsolation: false
             },
             show: false,
             backgroundColor: '#efefef'
