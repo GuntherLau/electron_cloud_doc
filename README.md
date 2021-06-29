@@ -10,7 +10,7 @@ npm install
 npm run dev
 ```
 
-打包为**应用程序**(目前仅限在 develop 分支中使用)
+打包为**应用程序**
 
 ```bash
 npm run dist
