@@ -20,11 +20,15 @@ const createManager = () => {
 let mainWindow, settingsWindow;
 
 app.on('ready', () => {
+
+    console.log('process.versions.node:', process.versions.node)
+    console.log('process.versions.electron:', process.versions.electron)
+
     let mainWindowConfig = {
         width: 1024,
         height: 680
     }
-    let urlLocation = isDev ? 'http://localhost:3000' : ""
+    let urlLocation = isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, './build/index.html')}`
 
     mainWindow = new AppWindow(mainWindowConfig, urlLocation)
     mainWindow.on('close', () => {

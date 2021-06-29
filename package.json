@@ -3,25 +3,69 @@
   "version": "0.1.0",
   "private": true,
   "main": "main.js",
-  "dependencies": {
-    "@electron/remote": "^1.2.0",
-    "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.1.0",
-    "@testing-library/user-event": "^12.1.10",
-    "ali-oss": "^6.15.2",
-    "bootstrap": "^5.0.1",
-    "bootstrap-icons": "^1.5.0",
-    "classnames": "^2.3.1",
-    "easymde": "^2.15.0",
-    "electron-store": "^8.0.0",
-    "node-sass": "^5.0.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-scripts": "4.0.3",
-    "react-simplemde-editor": "^4.1.0",
-    "uuid": "^8.3.2",
-    "web-vitals": "^1.0.1"
+  "author": {
+    "name": "Gunther Lau",
+    "email": "lg8644@gmail.com"
   },
+  "build": {
+    "appId": "com.guntherlau.clouddoc",
+    "productName": "阿里云文档",
+    "copyright": "Copyright © 2021 ${author}",
+    "electronDownload": {
+      "mirror": "https://npm.taobao.org/mirrors/electron/"
+    },
+    "extends": null,
+    "directories": {
+      "buildResources": "assets"
+    },
+    "files": [
+      "build/**/*",
+      "node_modules/**/*",
+      "settings/**/*",
+      "main.js",
+      "AppWindow.js",
+      "preload.js",
+      "./src/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "dmg": {
+      "background": "assets/appdmg.png",
+      "icon": "assets/icon.icns",
+      "iconSize": 100,
+      "contents": [
+        {
+          "x": 380,
+          "y": 280,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 110,
+          "y": 280,
+          "type": "file"
+        }
+      ],
+      "window": {
+        "width": 500,
+        "height": 500
+      }
+    },
+    "win": {
+      "target": [ "msi", "nsis"],
+      "icon": "assets/icon.ico",
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "publisherName": "Gunther Lau"
+    },
+    "nsis": {
+      "allowToChangeInstallationDirectory": true,
+      "oneClick": false,
+      "perMachine": false
+    }
+  },
+  "homepage": "./",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -29,7 +73,11 @@
     "eject": "react-scripts eject",
     "ele": "electron .",
     "onlyEle": "nodemon --watch main.js --watch src/utils/menuTemplate.js --exec \"electron .\"",
-    "dev": "concurrently \"wait-on http://localhost:3000 && electron .\" \"cross-env BROWSER=none npm start\""
+    "dev": "concurrently \"wait-on http://localhost:3000 && electron .\" \"cross-env BROWSER=none npm start\"",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "prepack": "npm run build",
+    "predist": "npm run build"
   },
   "eslintConfig": {
     "extends": [
@@ -49,11 +97,31 @@
       "last 1 safari version"
     ]
   },
+  "dependencies": {
+    "@electron/remote": "^1.2.0",
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "ali-oss": "^6.15.2",
+    "bootstrap": "^5.0.1",
+    "bootstrap-icons": "^1.5.0",
+    "classnames": "^2.3.1",
+    "easymde": "^2.15.0",
+    "electron-is-dev": "^2.0.0",
+    "electron-store": "^8.0.0",
+    "node-sass": "^5.0.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-scripts": "4.0.3",
+    "react-simplemde-editor": "^4.1.0",
+    "uuid": "^8.3.2",
+    "web-vitals": "^1.0.1"
+  },
   "devDependencies": {
     "concurrently": "^6.1.0",
     "cross-env": "^7.0.3",
     "electron": "^12.0.9",
-    "electron-is-dev": "^2.0.0",
+    "electron-builder": "22.10.0",
     "wait-on": "^5.3.0"
   }
 }
