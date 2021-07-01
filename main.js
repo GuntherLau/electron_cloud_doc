@@ -26,7 +26,10 @@ app.on('ready', () => {
 
     let mainWindowConfig = {
         width: 1024,
-        height: 680
+        height: 680,
+        minHeight: 680,
+        minWidth: 1024
+
     }
     let urlLocation = isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, './index.html')}`
 
