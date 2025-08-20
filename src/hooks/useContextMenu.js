@@ -21,7 +21,7 @@ const useContextMenu = (itemArr, targetSelector, deps) => {
         return () => {
             window.removeEventListener('contextmenu', handleContextMenu)
         }
-    }, deps)
+    }, [itemArr, targetSelector, ...deps])
 
     return clickedElement
 }

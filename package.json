@@ -81,7 +81,7 @@
     "dist": "electron-builder",
     "prepack": "npm run build && npm run buildMain",
     "predist": "npm run build && npm run buildMain",
-    "buildMain": "webpack"
+    "buildMain": "NODE_OPTIONS=--openssl-legacy-provider webpack"
   },
   "eslintConfig": {
     "extends": [
@@ -121,11 +121,12 @@
     "easymde": "^2.15.0",
     "electron": "^12.0.9",
     "electron-builder": "^23.0.2",
-    "sass": "^1.32.0",
+    "proxy-agent": "^5.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
     "react-simplemde-editor": "^4.1.0",
+    "sass": "^1.32.0",
     "uuid": "^8.3.2",
     "wait-on": "^5.3.0",
     "web-vitals": "^1.0.1",
