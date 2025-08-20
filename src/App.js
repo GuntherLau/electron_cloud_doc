@@ -19,7 +19,8 @@ import fileHelper from './utils/fileHelper'
 import useIpcRenderer from './hooks/useIpcRenderer'
 
 const { join, basename, extname, dirname } = window.require('path')
-const { remote, ipcRenderer } = window.require('electron')
+const { ipcRenderer } = window.require('electron')
+const { dialog, app } = window.require('@electron/remote')
 const Store = window.require('electron-store')
 
 const fileStore = new Store({'name': 'Files Data'})
@@ -61,7 +62,7 @@ function App() {
     const openedFiles = openedFileIds.map(openId => {
         return files[openId]
     })
-    const savedLocation = settingsStore.get('#saved-file-location') || remote.app.getPath('documents')
+    const savedLocation = settingsStore.get('#saved-file-location') || app.getPath('documents')
     // const savedLocation = app.getPath('documents')
 
 
@@ -200,7 +201,7 @@ function App() {
 
     const importFiles = () => {
         console.log('importFiles')
-        remote.dialog.showOpenDialog({
+        dialog.showOpenDialog({
         // dialog.showOpenDialog({
             title: '选择导入的 Markdown 文件',
             properties: ['openFile', 'multiSelections'],
@@ -237,7 +238,7 @@ function App() {
                 saveFilesToStore(newFiles)
 
                 if(importFilesArr.length > 0) {
-                    remote.dialog.showMessageBox({
+                    dialog.showMessageBox({
                         type: 'info',
                         title: '导入成功',
                         message: `成功导入了${importFilesArr.length}个文件`
