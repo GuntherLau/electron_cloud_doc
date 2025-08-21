@@ -11,9 +11,7 @@
     "appId": "com.guntherlau.clouddoc",
     "productName": "阿里云文档",
     "copyright": "Copyright © 2021 ${author}",
-    "electronDownload": {
-      "mirror": "https://npm.taobao.org/mirrors/electron/"
-    },
+
     "extends": null,
     "extraMetadata": {
       "main": "./build/main.js"
