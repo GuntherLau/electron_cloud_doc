@@ -8,6 +8,9 @@ const Store = require('electron-store')
 const fileStore = new Store({'name': 'Files Data'})
 const settingsStore = new Store({'name': 'Settings'})
 
+// Initialize @electron/remote in main process
+require('@electron/remote/main').initialize()
+
 const AliOssManager = require('./src/utils/AliOssManager')
 const createManager = () => {
     const Region = settingsStore.get('#settings-Region')
@@ -34,6 +37,8 @@ app.on('ready', () => {
     let urlLocation = isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, './index.html')}`
 
     mainWindow = new AppWindow(mainWindowConfig, urlLocation)
+    // Enable remote module for the main window
+    require('@electron/remote/main').enable(mainWindow.webContents)
     mainWindow.on('close', () => {
         mainWindow = null
     })
@@ -50,6 +55,8 @@ app.on('ready', () => {
         }
         const settingsFileLocation = `file://${path.join(__dirname, './public/settings.html')}`
         settingsWindow = new AppWindow(settingsWindowConfig, settingsFileLocation)
+        // Enable remote module for the settings window
+        require('@electron/remote/main').enable(settingsWindow.webContents)
         settingsWindow.removeMenu()
         settingsWindow.on('close', () => {
             settingsWindow = null

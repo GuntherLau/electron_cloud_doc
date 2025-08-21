@@ -31,14 +31,15 @@ const TabList = ({ files, activeId, unsaveIds, onTabClick, onCloseTab }) => {
 
                     return (
                         <li className="nav-item" key={file.id}>
-                            <a href="#" 
+                            <button type="button"
                             className={finalClassName}
+                            style={{border: 'none', background: 'none', cursor: 'pointer'}}
                             onClick={(e) => { e.preventDefault(); onTabClick(file.id); }}
                             >
                                 <span >{file.title}</span>
                                 <i onClick={(e) => { e.stopPropagation(); onCloseTab(file.id); }} src={bootstrapIcons} className={finelIconClassName} />
                                 { withUnsaved && <span className={unsavedClassName}></span>}
-                            </a>
+                            </button>
                         </li>
                     )
                 })

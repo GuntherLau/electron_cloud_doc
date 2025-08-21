@@ -24,7 +24,7 @@ const useKeyPress = (targetKeyCode) => {
             document.removeEventListener('keydown', keyDownHandler)
             document.removeEventListener('keyup', keyUpHandler)
         }
-    }, [])
+    }, [keyDownHandler, keyUpHandler])
 
     return keyPressed
 }

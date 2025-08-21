@@ -1,5 +1,6 @@
 
 const { remote, ipcRenderer } = require('electron')
+const { dialog, getCurrentWindow, app } = require('@electron/remote')
 const Store = require('electron-store')
 const settingsStore = new Store({'name': 'Settings'})
 const aliOssConfigArr = [
@@ -24,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('#select-new-location').addEventListener('click', () => {
         ipcRenderer.send('settings-select-new-location', 'select-new-location clicked')
-        remote.dialog.showOpenDialog({
+        dialog.showOpenDialog({
             properties: ['openDirectory'],
             message: '选择文件的储存路径'
         }).then(result => {
@@ -46,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         settingsStore.set('#saved-file-location', $('#saved-file-location').value)
         ipcRenderer.send('config-is-saved')
-        remote.getCurrentWindow().close()
+        getCurrentWindow().close()
     })
 
     $('#pills-tab').addEventListener('click', (e) => {
@@ -62,9 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
         $(e.target.dataset.tab).style.display = 'block'
 
         if(e.target.dataset.tab === '#aliyun-sync-params') {
-            remote.getCurrentWindow().setBounds({ height: 550 })
+            getCurrentWindow().setBounds({ height: 550 })
         } else {
-            remote.getCurrentWindow().setBounds({ height: 280 })
+            getCurrentWindow().setBounds({ height: 280 })
         }
     })
     

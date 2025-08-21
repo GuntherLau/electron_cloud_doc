@@ -10,7 +10,8 @@ class AppWindow extends BrowserWindow {
             webPreferences: {
                 nodeIntegration: true,
                 enableRemoteModule: true,
-                contextIsolation: false
+                contextIsolation: false,
+                webSecurity: false
             },
             show: false,
             backgroundColor: '#efefef'
